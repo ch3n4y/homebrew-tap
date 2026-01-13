@@ -17,6 +17,12 @@ cask "easytier-gui" do
 
   app "easytier-gui.app"
 
+  # Remove quarantine attribute to bypass Gatekeeper
+  postflight do
+    system_command "/usr/bin/xattr",
+                   args: ["-dr", "com.apple.quarantine", "#{appdir}/easytier-gui.app"]
+  end
+
   zap trash: [
     "~/Library/Application Support/EasyTier",
     "~/Library/Preferences/com.easytier.gui.plist",
