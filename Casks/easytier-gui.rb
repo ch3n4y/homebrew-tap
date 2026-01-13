@@ -20,7 +20,7 @@ cask "easytier-gui" do
     strategy :github_releases
   end
 
-  app "EasyTier.app"
+  app "easytier-gui.app"
 
   zap trash: [
     "~/Library/Application Support/EasyTier",
