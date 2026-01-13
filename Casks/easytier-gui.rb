@@ -13,7 +13,6 @@ cask "easytier-gui" do
   name "EasyTier GUI"
   desc "GUI client for EasyTier - a decentralized mesh VPN solution"
   homepage "https://github.com/EasyTier/EasyTier"
-  license "LGPL-3.0"
 
   livecheck do
     url :url
