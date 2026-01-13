@@ -15,8 +15,9 @@ cask "easytier-gui" do
   homepage "https://github.com/EasyTier/EasyTier"
 
   livecheck do
-    url :url
-    strategy :github_latest
+    url "https://github.com/EasyTier/EasyTier/releases"
+    regex(/v?(\d+(?:\.\d+)+)/i)
+    strategy :github_releases
   end
 
   app "EasyTier.app"

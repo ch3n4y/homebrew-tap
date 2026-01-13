@@ -15,8 +15,9 @@ class Easytier < Formula
   end
 
   livecheck do
-    url :stable
-    strategy :github_latest
+    url "https://github.com/EasyTier/EasyTier/releases"
+    regex(/v?(\d+(?:\.\d+)+)/i)
+    strategy :github_releases
   end
 
   def install
