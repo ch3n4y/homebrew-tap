@@ -4,11 +4,11 @@ class Easytier < Formula
   license "LGPL-3.0"
 
   if Hardware::CPU.arm?
-    url "https://github.com/EasyTier/EasyTier/releases/download/v2.5.0/easytier-macos-aarch64-v2.5.0.zip"
-    sha256 "ce3744470e41675358728ab0a8da798436ec763f561d8b698d8d06a7ffa21895"
+    url "https://github.com/EasyTier/EasyTier/releases/download/v2.6.4/easytier-macos-aarch64-v2.6.4.zip"
+    sha256 "4be1882d1aa36d31c1d6ba0596f2cf8a097e371f8da124212324b2e0f8df7e4b"
   else
-    url "https://github.com/EasyTier/EasyTier/releases/download/v2.5.0/easytier-macos-x86_64-v2.5.0.zip"
-    sha256 "9bc12142f8808f0de02575064e39901ac6804d82ef27c1d08ecf0bced3e79c47"
+    url "https://github.com/EasyTier/EasyTier/releases/download/v2.6.4/easytier-macos-x86_64-v2.6.4.zip"
+    sha256 "89fc28a6e6995259d76ce3f11775220e8a21c760e94df91a6a9db30a69b6982e"
   end
 
   livecheck do
