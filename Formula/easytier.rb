@@ -1,7 +1,6 @@
 class Easytier < Formula
   desc "Simple, secure, decentralized mesh VPN solution with WireGuard support"
   homepage "https://github.com/EasyTier/EasyTier"
-  version "2.5.0"
   license "LGPL-3.0"
 
   if Hardware::CPU.arm?
@@ -21,9 +20,42 @@ class Easytier < Formula
   def install
     bin.install "easytier-core", "easytier-cli", "easytier-web", "easytier-web-embed"
 
-    # Generate default configuration
+    (libexec/"easytier-service").write service_wrapper
+    chmod 0755, libexec/"easytier-service"
+
+    # Generate default service and network configuration.
     (etc/"easytier").mkpath
     (etc/"easytier/default.conf").write default_config unless (etc/"easytier/default.conf").exist?
+    (etc/"easytier/service.env").write default_service_env unless (etc/"easytier/service.env").exist?
+  end
+
+  def service_wrapper
+    <<~SH
+      #!/bin/sh
+      set -eu
+
+      service_env="#{etc}/easytier/service.env"
+      config_file="#{etc}/easytier/default.conf"
+
+      if [ -r "$service_env" ]; then
+        . "$service_env"
+      fi
+
+      if [ -n "${EASYTIER_CONFIG_SERVER:-}" ]; then
+        exec "#{opt_bin}/easytier-core" -w "$EASYTIER_CONFIG_SERVER"
+      fi
+
+      exec "#{opt_bin}/easytier-core" -c "$config_file"
+    SH
+  end
+
+  def default_service_env
+    <<~SH
+      # Leave EASYTIER_CONFIG_SERVER empty to run with default.conf.
+      # Set it to use the web console config server, for example:
+      # EASYTIER_CONFIG_SERVER="tcp://127.0.0.1:22020/admin"
+      EASYTIER_CONFIG_SERVER=""
+    SH
   end
 
   def default_config
@@ -76,7 +108,17 @@ class Easytier < Formula
 
       Configuration:
         Default config: #{etc}/easytier/default.conf
+        Service mode:   #{etc}/easytier/service.env
         Edit the config file to customize your network settings.
+
+      Service Startup Modes:
+        1. Default config file:
+           Leave EASYTIER_CONFIG_SERVER empty in #{etc}/easytier/service.env
+           The service runs: easytier-core -c #{etc}/easytier/default.conf
+
+        2. Web console config server:
+           Set EASYTIER_CONFIG_SERVER in #{etc}/easytier/service.env
+           The service runs: easytier-core -w "$EASYTIER_CONFIG_SERVER"
 
       Service Management:
         Start service:  sudo brew services start easytier
@@ -86,6 +128,7 @@ class Easytier < Formula
 
       Manual Usage:
         sudo easytier-core -c #{etc}/easytier/default.conf
+        sudo easytier-core -w tcp://127.0.0.1:22020/admin
 
       Documentation:
         https://github.com/EasyTier/EasyTier
@@ -93,7 +136,7 @@ class Easytier < Formula
   end
 
   service do
-    run [opt_bin/"easytier-core", "-c", etc/"easytier/default.conf"]
+    run [opt_libexec/"easytier-service"]
     keep_alive true
     require_root true
     working_dir HOMEBREW_PREFIX
@@ -107,11 +150,13 @@ class Easytier < Formula
 
     # Test that all binaries exist and are executable
     %w[easytier-core easytier-cli easytier-web easytier-web-embed].each do |binary|
-      assert_predicate bin/binary, :exist?
+      assert_path_exists bin/binary
       assert_predicate bin/binary, :executable?
     end
 
     # Test config file was created
-    assert_predicate etc/"easytier/default.conf", :exist?
+    assert_path_exists etc/"easytier/default.conf"
+    assert_path_exists etc/"easytier/service.env"
+    assert_predicate libexec/"easytier-service", :executable?
   end
 end
