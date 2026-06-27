@@ -25,6 +25,7 @@ class Easytier < Formula
 
     # Generate default service and network configuration.
     (etc/"easytier").mkpath
+    (var/"lib/easytier").mkpath
     (etc/"easytier/default.conf").write default_config unless (etc/"easytier/default.conf").exist?
     (etc/"easytier/service.env").write default_service_env unless (etc/"easytier/service.env").exist?
   end
@@ -36,10 +37,15 @@ class Easytier < Formula
 
       service_env="#{etc}/easytier/service.env"
       config_file="#{etc}/easytier/default.conf"
+      state_dir="#{var}/lib/easytier"
 
       if [ -r "$service_env" ]; then
         . "$service_env"
       fi
+
+      mkdir -p "$state_dir"
+      export HOME="${EASYTIER_HOME:-$state_dir}"
+      export XDG_STATE_HOME="${XDG_STATE_HOME:-$state_dir}"
 
       if [ -n "${EASYTIER_CONFIG_SERVER:-}" ]; then
         exec "#{opt_bin}/easytier-core" -w "$EASYTIER_CONFIG_SERVER"
@@ -137,6 +143,7 @@ class Easytier < Formula
 
   service do
     run [opt_libexec/"easytier-service"]
+    environment_variables HOME: var/"lib/easytier", XDG_STATE_HOME: var/"lib/easytier"
     keep_alive true
     require_root true
     working_dir HOMEBREW_PREFIX
